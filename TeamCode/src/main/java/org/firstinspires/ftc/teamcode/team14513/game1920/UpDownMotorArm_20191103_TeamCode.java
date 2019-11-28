@@ -27,53 +27,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.team14513;
+package org.firstinspires.ftc.teamcode.team14513.game1920;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
+//import com.qualcomm.robotcore.hardware.Gamepad
+@TeleOp(name="UpDown Arm: Linear OpMode", group="Linear Opmode")
+public class UpDownMotorArm_20191103_TeamCode extends LinearOpMode {
 
-@Autonomous(name="FlipHand: Linear OpMode", group="Autonomous")
-public class FlipHand extends LinearOpMode {
-
-
-
-    private double startPosition = 0.0;
-    private double stopPosition = 0.7;
-    private DcMotor flipmotor = null;
-    DcMotor getFlipmotor;
-    protected void runOpmode() {
-        telemetry.addData("Status", "FlipHand Initialized");
-        telemetry.update();
-
-        flipmotor = hardwareMap.get(DcMotor.class, "flipmotor");
-
-        flipmotor.setPower(0.5);
-        flipmotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        flipmotor.setTargetPosition((int) stopPosition)
-        ;
-
-        waitForStart();
-
-        while (!flipdathand()) {
-            sleep(100);
-        }
-        telemetry.addData("FlipHand", "Start Position (%.2f)", startPosition, stopPosition);
-        telemetry.update();
-        sleep(40000);
-        flipmotor.setTargetPosition((int) stopPosition);
-    }
-
-
-    private boolean flipdathand() {
-        return true;
-
-
-    }
+    private ElapsedTime runtime = new ElapsedTime();
+    DcMotor updownMotorArm;
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
 
+        updownMotorArm = hardwareMap.get(DcMotor.class, "updownMotorArm");
+        waitForStart();
+        runtime.reset();
+
+
+        while (opModeIsActive()) {
+
+            if (gamepad1.left_bumper) {
+                updownMotorArm.setPower(0.5);
+            } else {
+                updownMotorArm.setPower(0.0);
+            }
+
+            if (gamepad1.right_bumper) {
+                updownMotorArm.setPower(0.5);
+            } else {
+                updownMotorArm.setPower(0.0);
+            }
+            // POV Mode uses left stick to go forward, and right stick to turn.
+            // - This uses basic math to combine motions and is easier to drive straight.
+            telemetry.addData("Status", "Run Time:" + runtime.toString());
+            telemetry.addData("Motors", "left (%.2f), right (%.2f)", updownMotorArm);
+            telemetry.update();
+
+        }
     }
 }
