@@ -51,8 +51,8 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Basic: Iterative OpMode", group="Iterative Opmode")
-@Disabled
+@TeleOp(name="DriveTrain", group="game1920")
+//@Disabled
 public class DriveTrain extends OpMode
 {
     // Declare OpMode members.
@@ -61,11 +61,6 @@ public class DriveTrain extends OpMode
     private DcMotor rightFrontDrive = null;
     private DcMotor leftRearDrive = null;
     private DcMotor rightRearDrive = null;
-
-    private DcMotor.Direction leftFrontDirection = DcMotor.Direction.FORWARD;
-    private DcMotor.Direction rightFrontDirection = DcMotor.Direction.REVERSE;
-    private DcMotor.Direction leftRearDirection = DcMotor.Direction.FORWARD;
-    private DcMotor.Direction rightRearDirection = DcMotor.Direction.REVERSE;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -106,66 +101,19 @@ public class DriveTrain extends OpMode
      */
     @Override
     public void loop() {
-        // Setup a variable for each drive wheel to save power level for telemetry
-        double leftPower;
-        double rightPower;
-
-        // Choose to drive using either Tank Mode, or POV Mode
-        // Comment out the method that's not used.  The default below is POV.
-
-        // POV Mode uses left stick to go forward, and right stick to turn.
-        // - This uses basic math to combine motions and is easier to drive straight.
-        double drive = -gamepad1.left_stick_y;
-        double turn  =  gamepad1.right_stick_x;
-        leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
-        rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
-
-        // Tank Mode uses one stick to control each wheel.
-        // - This requires no math, but it is hard to drive forward slowly and keep straight.
-        // leftPower  = -gamepad1.left_stick_y ;
-        // rightPower = -gamepad1.right_stick_y ;
-
-        // Send calculated power to wheels
-        leftDrive.setPower(leftPower);
-        rightDrive.setPower(rightPower);
+        moveLiner(gamepad1.left_stick_x, gamepad1.left_stick_y);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+        telemetry.addData("Motors", "x(%.2f), y(%.2f)", gamepad1.left_stick_x, gamepad1.left_stick_y);
     }
 
     private void moveLiner(double x, double y) {
-
+        leftFrontDrive.setPower(y - x);
+        rightFrontDrive.setPower(x + y);
+        leftRearDrive.setPower(y + x);
+        rightRearDrive.setPower(x - y);
     }
-
-    private void moveForward() {
-        leftFrontDirection = DcMotor.Direction.FORWARD;
-        rightFrontDirection = DcMotor.Direction.REVERSE;
-        leftRearDirection = DcMotor.Direction.FORWARD;
-        rightRearDirection = DcMotor.Direction.REVERSE;
-    }
-
-    private void moveBackward() {
-        leftFrontDirection = DcMotor.Direction.REVERSE;
-        rightFrontDirection = DcMotor.Direction.FORWARD;
-        leftRearDirection = DcMotor.Direction.REVERSE;
-        rightRearDirection = DcMotor.Direction.FORWARD;
-    }
-
-    private void moveLeftward() {
-        leftFrontDirection = DcMotor.Direction.FORWARD;
-        rightFrontDirection = DcMotor.Direction.FORWARD;
-        leftRearDirection = DcMotor.Direction.REVERSE;
-        rightRearDirection = DcMotor.Direction.REVERSE;
-    }
-
-    private void moveRightward() {
-        leftFrontDirection = DcMotor.Direction.REVERSE;
-        rightFrontDirection = DcMotor.Direction.REVERSE;
-        leftRearDirection = DcMotor.Direction.FORWARD;
-        rightRearDirection = DcMotor.Direction.FORWARD;
-    }
-
     /*
      * Code to run ONCE after the driver hits STOP
      */

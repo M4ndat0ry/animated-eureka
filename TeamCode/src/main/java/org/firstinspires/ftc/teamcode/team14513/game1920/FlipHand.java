@@ -34,7 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@Autonomous(name="FlipHand: Linear OpMode", group="Autonomous")
+@Autonomous(name="FlipHand", group="game1920")
 public class FlipHand extends LinearOpMode {
 
 

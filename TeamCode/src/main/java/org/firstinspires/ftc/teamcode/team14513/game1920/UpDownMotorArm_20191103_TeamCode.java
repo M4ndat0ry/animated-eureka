@@ -34,7 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 //import com.qualcomm.robotcore.hardware.Gamepad
-@TeleOp(name="UpDown Arm: Linear OpMode", group="Linear Opmode")
+@TeleOp(name="UpDownArm", group="game1920")
 public class UpDownMotorArm_20191103_TeamCode extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
