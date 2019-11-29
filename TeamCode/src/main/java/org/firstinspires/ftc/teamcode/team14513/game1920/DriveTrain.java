@@ -72,10 +72,15 @@ public class DriveTrain extends OpMode
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
-        leftRearDrive  = hardwareMap.get(DcMotor.class, "left_rear_drive");
-        rightRearDrive = hardwareMap.get(DcMotor.class, "right_rear_drive");
+        leftFrontDrive  = hardwareMap.get(DcMotor.class, "FrontLeft");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "FrontRight");
+        leftRearDrive  = hardwareMap.get(DcMotor.class, "RearLeft");
+        rightRearDrive = hardwareMap.get(DcMotor.class, "RearRight");
+
+        leftFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftRearDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightRearDrive.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -101,19 +106,31 @@ public class DriveTrain extends OpMode
      */
     @Override
     public void loop() {
-        moveLiner(gamepad1.left_stick_x, gamepad1.left_stick_y);
+        moveLiner(gamepad1.left_stick_x, -gamepad1.left_stick_y);
+
+        turn(gamepad1.left_trigger);
+        turn(-gamepad1.right_trigger);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "x(%.2f), y(%.2f)", gamepad1.left_stick_x, gamepad1.left_stick_y);
+        telemetry.addData("DriveTrain", "x(%.2f), y(%.2f)", gamepad1.left_stick_x, gamepad1.left_stick_y);
+        telemetry.addData("DriveTrain", "l(%.2f), r(%.2f)", gamepad1.left_trigger, gamepad1.right_trigger);
     }
 
     private void moveLiner(double x, double y) {
-        leftFrontDrive.setPower(y - x);
+        leftFrontDrive.setPower(x - y);
         rightFrontDrive.setPower(x + y);
-        leftRearDrive.setPower(y + x);
-        rightRearDrive.setPower(x - y);
+        leftRearDrive.setPower(-(x + y));
+        rightRearDrive.setPower(y - x);
     }
+
+    private void turn(double tv) {
+        leftFrontDrive.setPower(tv);
+        rightFrontDrive.setPower(tv);
+        leftRearDrive.setPower(tv);
+        rightRearDrive.setPower(tv);
+    }
+
     /*
      * Code to run ONCE after the driver hits STOP
      */
