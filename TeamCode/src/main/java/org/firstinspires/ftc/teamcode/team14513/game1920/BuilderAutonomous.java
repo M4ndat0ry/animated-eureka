@@ -26,49 +26,29 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.firstinspires.ftc.teamcode.team14513.game1920;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-//import com.qualcomm.robotcore.hardware.Gamepad
-@TeleOp(name="UpDownArm", group="game1920")
-public class UpDownMotorArm_20191103_TeamCode extends LinearOpMode {
 
-    private ElapsedTime runtime = new ElapsedTime();
-    DcMotor updownMotorArm;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+@Autonomous(name="BuilderAutonomous", group="game1920")
+public class BuilderAutonomous extends OpMode {
+    DriveTrainTeleOp driveTrainTeleOp;
+    ArmHandTeleOp armHandTeleOp;
 
     @Override
-    public void runOpMode() {
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
+    public void init() {
+        driveTrainTeleOp = new DriveTrainTeleOp();
+        driveTrainTeleOp.init();
 
-        updownMotorArm = hardwareMap.get(DcMotor.class, "updownMotorArm");
-        waitForStart();
-        runtime.reset();
+        armHandTeleOp = new ArmHandTeleOp();
+        armHandTeleOp.init();
+    }
 
-
-        while (opModeIsActive()) {
-
-            if (gamepad1.left_bumper) {
-                updownMotorArm.setPower(0.5);
-            } else {
-                updownMotorArm.setPower(0.0);
-            }
-
-            if (gamepad1.right_bumper) {
-                updownMotorArm.setPower(0.5);
-            } else {
-                updownMotorArm.setPower(0.0);
-            }
-            // POV Mode uses left stick to go forward, and right stick to turn.
-            // - This uses basic math to combine motions and is easier to drive straight.
-            telemetry.addData("Status", "Run Time:" + runtime.toString());
-            telemetry.addData("Motors", "left (%.2f), right (%.2f)", updownMotorArm);
-            telemetry.update();
-
-        }
+    @Override
+    public void loop() {
+        armHandTeleOp.flip(false);
+        driveTrainTeleOp.moveLiner(1.0, 0.0);
     }
 }

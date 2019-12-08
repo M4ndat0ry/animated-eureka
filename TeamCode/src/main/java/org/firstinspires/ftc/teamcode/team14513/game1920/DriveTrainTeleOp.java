@@ -29,11 +29,13 @@
 
 package org.firstinspires.ftc.teamcode.team14513.game1920;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -49,29 +51,39 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="ArmHand", group="game1920")
+@TeleOp(name="DriveTrainTeleOp", group="game1920")
 //@Disabled
-public class ArmHand extends OpMode
+public class DriveTrainTeleOp extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor armDrive = null;
-    private DcMotor handDrive = null;
-    private DcMotor flipDrive = null;
+    private DcMotor leftFrontDrive = null;
+    private DcMotor rightFrontDrive = null;
+    private DcMotor leftRearDrive = null;
+    private DcMotor rightRearDrive = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        telemetry.addData("Status", "ArmHand Initializing");
+        telemetry.addData("Status", "Initialized");
 
-        armDrive  = hardwareMap.get(DcMotor.class, "Arm");
-        handDrive = hardwareMap.get(DcMotor.class, "Hand");
-        flipDrive  = hardwareMap.get(DcMotor.class, "Flip");
+        // Initialize the hardware variables. Note that the strings used here as parameters
+        // to 'get' must correspond to the names assigned during the robot configuration
+        // step (using the FTC Robot Controller app on the phone).
+        leftFrontDrive  = hardwareMap.get(DcMotor.class, "FrontLeft");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "FrontRight");
+        leftRearDrive  = hardwareMap.get(DcMotor.class, "RearLeft");
+        rightRearDrive = hardwareMap.get(DcMotor.class, "RearRight");
+
+        leftFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftRearDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightRearDrive.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Tell the driver that initialization is complete.
-        telemetry.addData("Status", "ArmHand Initialized");
+        telemetry.addData("Status", "Initialized");
     }
 
     /*
@@ -94,19 +106,29 @@ public class ArmHand extends OpMode
      */
     @Override
     public void loop() {
-        armDrive.setPower(-gamepad2.left_stick_y);
-        handDrive.setPower(-gamepad2.right_stick_y);
+        moveLiner(gamepad1.left_stick_x, -gamepad1.left_stick_y);
 
-        if (gamepad2.dpad_up) {
-            flipDrive.setPower(0.5);
-        } else if (gamepad2.dpad_down) {
-            flipDrive.setPower(-0.5);
-        }
+        turn(gamepad1.left_trigger);
+        turn(-gamepad1.right_trigger);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("DriveTrain", "l(%.2f), r(%.2f)", gamepad2.left_stick_y, gamepad2.right_stick_y);
-        telemetry.addData("DriveTrain", "u:" + gamepad1.dpad_up + ", d:" + gamepad1.dpad_down);
+        telemetry.addData("DriveTrainTeleOp", "x(%.2f), y(%.2f)", gamepad1.left_stick_x, gamepad1.left_stick_y);
+        telemetry.addData("DriveTrainTeleOp", "l(%.2f), r(%.2f)", gamepad1.left_trigger, gamepad1.right_trigger);
+    }
+
+    void moveLiner(double x, double y) {
+        leftFrontDrive.setPower(x - y);
+        rightFrontDrive.setPower(x + y);
+        leftRearDrive.setPower(-(x + y));
+        rightRearDrive.setPower(y - x);
+    }
+
+    void turn(double tv) {
+        leftFrontDrive.setPower(tv);
+        rightFrontDrive.setPower(tv);
+        leftRearDrive.setPower(tv);
+        rightRearDrive.setPower(tv);
     }
 
     /*

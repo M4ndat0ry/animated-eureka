@@ -29,13 +29,11 @@
 
 package org.firstinspires.ftc.teamcode.team14513.game1920;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -51,39 +49,44 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="DriveTrain", group="game1920")
+@TeleOp(name="ArmHandTeleOp", group="game1920")
 //@Disabled
-public class DriveTrain extends OpMode
+public class ArmHandTeleOp extends OpMode
 {
+    public static final double UP_MAX = 1.0;
+    public static final double DOWN_MAX = 0.4;
+    public static final double IN_MAX = 1.0;
+    public static final double OUT_MAX = 1.0;
+    public static final double OPEN_MAX = 1.0;
+    public static final double CLOSE_MAX = 0.3;
+
+    public static final double getMax(double origin, double cap) {
+        double max = origin * cap;
+        if (max > cap) {
+            max = cap;
+        }
+        return max;
+    }
+
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftFrontDrive = null;
-    private DcMotor rightFrontDrive = null;
-    private DcMotor leftRearDrive = null;
-    private DcMotor rightRearDrive = null;
+    private DcMotor armDrive = null;
+    private DcMotor handDrive = null;
+    private DcMotor flipDrive = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", "ArmHandTeleOp Initializing");
 
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "FrontLeft");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "FrontRight");
-        leftRearDrive  = hardwareMap.get(DcMotor.class, "RearLeft");
-        rightRearDrive = hardwareMap.get(DcMotor.class, "RearRight");
-
-        leftFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftRearDrive.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightRearDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        armDrive  = hardwareMap.get(DcMotor.class, "Arm");
+        handDrive = hardwareMap.get(DcMotor.class, "Hand");
+        flipDrive  = hardwareMap.get(DcMotor.class, "Flip");
 
         // Tell the driver that initialization is complete.
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", "ArmHandTeleOp Initialized");
     }
 
     /*
@@ -106,29 +109,38 @@ public class DriveTrain extends OpMode
      */
     @Override
     public void loop() {
-        moveLiner(gamepad1.left_stick_x, -gamepad1.left_stick_y);
-
-        turn(gamepad1.left_trigger);
-        turn(-gamepad1.right_trigger);
+        upDown(-gamepad2.left_stick_y);
+        openClose(-gamepad2.right_stick_y);
+        flip(gamepad2.dpad_up);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("DriveTrain", "x(%.2f), y(%.2f)", gamepad1.left_stick_x, gamepad1.left_stick_y);
-        telemetry.addData("DriveTrain", "l(%.2f), r(%.2f)", gamepad1.left_trigger, gamepad1.right_trigger);
+        telemetry.addData("DriveTrainTeleOp", "l(%.2f), r(%.2f)", gamepad2.left_stick_y, gamepad2.right_stick_y);
+        telemetry.addData("DriveTrainTeleOp", "u:" + gamepad1.dpad_up + ", d:" + gamepad1.dpad_down);
     }
 
-    private void moveLiner(double x, double y) {
-        leftFrontDrive.setPower(x - y);
-        rightFrontDrive.setPower(x + y);
-        leftRearDrive.setPower(-(x + y));
-        rightRearDrive.setPower(y - x);
+    void upDown(double howMuch) {
+        if (howMuch >= 0.0) { // up
+            armDrive.setPower(getMax(howMuch, UP_MAX));
+        } else { // down slow
+            armDrive.setPower(getMax(howMuch, DOWN_MAX));
+        }
     }
 
-    private void turn(double tv) {
-        leftFrontDrive.setPower(tv);
-        rightFrontDrive.setPower(tv);
-        leftRearDrive.setPower(tv);
-        rightRearDrive.setPower(tv);
+    void flip(boolean inOut) {
+        if (inOut) { // in
+            flipDrive.setPower(getMax(1.0, IN_MAX));
+        } else { // out
+            flipDrive.setPower(getMax(1.0, OUT_MAX));
+        }
+    }
+
+    void openClose(double howMuch) {
+        if (howMuch >= 0.0) { // open
+            handDrive.setPower(getMax(howMuch, OPEN_MAX));
+        } else { // close slow
+            handDrive.setPower(getMax(howMuch, CLOSE_MAX));
+        }
     }
 
     /*
